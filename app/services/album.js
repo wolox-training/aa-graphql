@@ -1,34 +1,24 @@
-const fetch = require('node-fetch');
+const axios = require('axios');
 const { url } = require('../../config').common.api;
 const errors = require('../errors');
 
-exports.getAlbum = async id => {
+exports.getAlbum = id => {
   const endpoint = `${url}albums/${id}`;
-  try {
-    const album = await fetch(endpoint);
-    return album.json();
-  } catch (e) {
-    throw errors.conectionError(e.message);
-  }
+  return axios
+    .get(endpoint)
+    .then(response => response.data)
+    .catch(e => {
+      throw errors.conectionError(e.message);
+    });
 };
 
-exports.getPhotosOfAlbum = async albumId => {
+exports.getPhotosOfAlbum = albumId => {
   const query = `?albumId=${albumId}`;
   const endpoint = `${url}photos${query}`;
-  try {
-    const photos = await fetch(endpoint);
-    return photos.json();
-  } catch (e) {
-    throw errors.conectionError(e.message);
-  }
-};
-
-exports.getArtistOfAlbum = async userId => {
-  const endpoint = `${url}users/${userId}`;
-  try {
-    const user = await fetch(endpoint);
-    return user.json();
-  } catch (e) {
-    throw errors.conectionError(e.message);
-  }
+  return axios
+    .get(endpoint)
+    .then(response => response.data)
+    .catch(e => {
+      throw errors.conectionError(e.message);
+    });
 };
