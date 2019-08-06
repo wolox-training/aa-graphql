@@ -23,7 +23,7 @@ exports.getPhotosOfAlbum = albumId => {
     });
 };
 
-exports.getAllAlbums = (offset, limit, orderBy = 'id') => {
+exports.getAllAlbums = (offset, limit, orderBy) => {
   const endpoint = `${url}albums`;
   return axios
     .get(endpoint)
@@ -32,21 +32,22 @@ exports.getAllAlbums = (offset, limit, orderBy = 'id') => {
       throw errors.conectionError(e.message);
     })
     .then(albums => {
-      albums.sort((a, b) => {
-        if (!a[orderBy] || !b[orderBy]) {
-          throw errors.badRequest('The orderBy parameter do not exist');
-        }
-        if (a[orderBy] < b[orderBy]) {
-          return -1;
-        }
-        if (a[orderBy] > b[orderBy]) {
-          return 1;
-        }
-        return 0;
-      });
-      if (offset !== undefined && limit !== undefined) {
-        return albums.slice(offset, offset + limit);
+      if (orderBy) {
+        return albums
+          .sort((a, b) => {
+            if (!a[orderBy] || !b[orderBy]) {
+              throw errors.badRequest('The orderBy parameter do not exist');
+            }
+            if (a[orderBy] < b[orderBy]) {
+              return -1;
+            }
+            if (a[orderBy] > b[orderBy]) {
+              return 1;
+            }
+            return 0;
+          })
+          .slice(offset, limit);
       }
-      return albums;
+      return albums.slice(offset, limit);
     });
 };
