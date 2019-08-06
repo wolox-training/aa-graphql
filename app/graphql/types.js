@@ -19,7 +19,6 @@ module.exports = gql`
   }
   type Album {
     id: ID!
-    artist: Artist
     title: String!
     photos: [Photo!]!
   }
@@ -29,26 +28,5 @@ module.exports = gql`
     title: String!
     url: String!
     thumbnailUrl: String!
-  }
-  type Artist {
-    id: ID!
-    name: String!
-    username: String!
-    email: String!
-    address: Address!
-    phone: String!
-    website: String!
-    company: Company!
-  }
-  type Address {
-    street: String!
-    suite: String!
-    city: String!
-    zipcode: String!
-  }
-  type Company {
-    name: String!
-    catchPhrase: String!
-    bs: String!
   }
 `;
