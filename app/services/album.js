@@ -33,11 +33,15 @@ exports.getArtistOfAlbum = async userId => {
   }
 };
 
-exports.getAllAlbums = async (offset, limit, orderBy = 'id') => {
+exports.getAllAlbums = async (offset, limit, filter, orderBy = 'id') => {
   const endpoint = `${url}albums`;
   try {
     let albums = await fetch(endpoint);
     albums = await albums.json();
+    console.log(filter);
+    if (filter) {
+      return albums.filter(album => album.title === filter);
+    }
     albums.sort((a, b) => {
       if (!a[orderBy] || !b[orderBy]) {
         throw errors.badRequest('The orderBy parameter do not exist');
