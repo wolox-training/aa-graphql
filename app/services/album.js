@@ -38,7 +38,6 @@ exports.getAllAlbums = async (offset, limit, filter, orderBy = 'id') => {
   try {
     let albums = await fetch(endpoint);
     albums = await albums.json();
-    console.log(filter);
     if (filter) {
       return albums.filter(album => album.title === filter);
     }
