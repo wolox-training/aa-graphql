@@ -32,25 +32,21 @@ exports.getAllAlbums = (offset, limit, orderBy) => {
       throw errors.conectionError(e.message);
     })
     .then(albums => {
+      const sortedAlbums = albums.slice();
       if (orderBy) {
-        const slicedAlbums = albums
-          .slice()
-          .sort((a, b) => {
-            if (!a[orderBy] || !b[orderBy]) {
-              throw errors.badRequest('The orderBy parameter do not exist');
-            }
-            if (a[orderBy] < b[orderBy]) {
-              return -1;
-            }
-            if (a[orderBy] > b[orderBy]) {
-              return 1;
-            }
-            return 0;
-          })
-          .slice(offset, limit);
-        return slicedAlbums;
+        sortedAlbums.sort((a, b) => {
+          if (!a[orderBy] || !b[orderBy]) {
+            throw errors.badRequest('The orderBy parameter do not exist');
+          }
+          if (a[orderBy] < b[orderBy]) {
+            return -1;
+          }
+          if (a[orderBy] > b[orderBy]) {
+            return 1;
+          }
+          return 0;
+        });
       }
-      const slicedAlbums = albums.slice(offset, limit);
-      return slicedAlbums;
+      return sortedAlbums.slice(offset, limit);
     });
 };
