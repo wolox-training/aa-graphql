@@ -32,9 +32,9 @@ exports.getAllAlbums = (offset, limit, orderBy) => {
       throw errors.conectionError(e.message);
     })
     .then(albums => {
-      const sortedAlbums = albums.slice();
+      const processedAlbums = albums.slice();
       if (orderBy) {
-        sortedAlbums.sort((a, b) => {
+        processedAlbums.sort((a, b) => {
           if (!a[orderBy] || !b[orderBy]) {
             throw errors.badRequest('The orderBy parameter do not exist');
           }
@@ -47,6 +47,6 @@ exports.getAllAlbums = (offset, limit, orderBy) => {
           return 0;
         });
       }
-      return sortedAlbums.slice(offset, limit);
+      return processedAlbums.slice(offset, limit);
     });
 };
