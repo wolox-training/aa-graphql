@@ -4,17 +4,18 @@ const { mutate } = require('../server.spec'),
 
 describe('users', () => {
   describe('mutations', () => {
-    it('should create an user successfuly', () =>
-      userFactory.attributes().then(user =>
-        mutate(createUser(user)).then(res => {
-          const { firstName, lastName, email, password, username, id } = res.data.createUser;
-          expect(firstName).toEqual(user.firstName);
-          expect(lastName).toEqual(user.lastName);
-          expect(email).toEqual(user.email);
-          expect(password).toEqual(user.password);
-          expect(username).toEqual(user.username);
-          expect(id).toBeDefined();
-        })
-      ));
+    it('should create an user successfuly', async () => {
+      const user = await userFactory.attributes({ email: 'ale@wolox.com.ar' });
+      const res = await mutate(await createUser(user));
+      const { firstName, lastName, email, id } = res.data.user;
+      await expect(firstName).toEqual(user.firstName);
+      await expect(lastName).toEqual(user.lastName);
+      await expect(email).toEqual(user.email);
+      await expect(id).toBeDefined();
+    });
+    it('should return error', async () => {
+      const res = await mutate(await createUser({ notFirstName: 'Pepe', lastName: 1 }));
+      await expect(typeof res.errors).toBe('object');
+    });
   });
 });
