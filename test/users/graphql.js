@@ -6,6 +6,7 @@ const createUser = userInput => ({
       user(firstName: $firstName, lastName: $lastName, password: $password, email: $email) {
         firstName
         lastName
+        name
         id
         password
         email
