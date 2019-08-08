@@ -21,18 +21,22 @@ const getUsers = () => gql`
 
 const createUser = userInput => ({
   mutation: gql`
-    mutation createUser($userInput: UserInput!) {
-      createUser(user: $userInput) {
+    mutation user($firstName: String!, $lastName: String!, $password: String!, $email: String!) {
+      user(firstName: $firstName, lastName: $lastName, password: $password, email: $email) {
         firstName
         lastName
         id
-        username
         password
         email
       }
     }
   `,
-  variables: { userInput }
+  variables: {
+    firstName: userInput.firstName,
+    lastName: userInput.lastName,
+    password: userInput.password,
+    email: userInput.email
+  }
 });
 
 module.exports = { getUser, getUsers, createUser };
