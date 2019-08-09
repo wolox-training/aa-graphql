@@ -23,6 +23,20 @@ exports.getPhotosOfAlbum = albumId => {
     });
 };
 
+const sortFunction = (array, orderBy) =>
+  array.sort((a, b) => {
+    if (!a[orderBy] || !b[orderBy]) {
+      throw errors.badRequest('The orderBy parameter do not exist');
+    }
+    if (a[orderBy] < b[orderBy]) {
+      return -1;
+    }
+    if (a[orderBy] > b[orderBy]) {
+      return 1;
+    }
+    return 0;
+  });
+
 exports.getAllAlbums = (offset, limit, filter, orderBy) => {
   const endpoint = `${url}albums`;
   return axios
@@ -37,18 +51,7 @@ exports.getAllAlbums = (offset, limit, filter, orderBy) => {
         return processedAlbums.filter(album => album.title === filter);
       }
       if (orderBy) {
-        processedAlbums.sort((a, b) => {
-          if (!a[orderBy] || !b[orderBy]) {
-            throw errors.badRequest('The orderBy parameter do not exist');
-          }
-          if (a[orderBy] < b[orderBy]) {
-            return -1;
-          }
-          if (a[orderBy] > b[orderBy]) {
-            return 1;
-          }
-          return 0;
-        });
+        sortFunction(processedAlbums, orderBy);
       }
       return processedAlbums.slice(offset, limit);
     });
