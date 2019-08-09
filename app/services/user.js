@@ -24,4 +24,5 @@ exports.createUser = user =>
     )
     .catch(e => {
       logger.error(e.message);
+      throw e;
     });
