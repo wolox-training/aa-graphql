@@ -23,7 +23,7 @@ exports.getPhotosOfAlbum = albumId => {
     });
 };
 
-exports.getAllAlbums = (offset, limit, orderBy) => {
+exports.getAllAlbums = (offset, limit, filter, orderBy) => {
   const endpoint = `${url}albums`;
   return axios
     .get(endpoint)
@@ -33,6 +33,9 @@ exports.getAllAlbums = (offset, limit, orderBy) => {
     })
     .then(albums => {
       const processedAlbums = albums.slice();
+      if (filter) {
+        return processedAlbums.filter(album => album.title === filter);
+      }
       if (orderBy) {
         processedAlbums.sort((a, b) => {
           if (!a[orderBy] || !b[orderBy]) {
