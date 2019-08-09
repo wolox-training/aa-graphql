@@ -5,24 +5,19 @@ const errors = require('../errors'),
 const logger = require('../logger');
 
 exports.createUser = user =>
-  encryptationHelper
-    .encrypt(user.password)
-    .then(hash =>
-      User.createModel({
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        password: hash
+  encryptationHelper.encrypt(user.password).then(hash =>
+    User.createModel({
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      password: hash
+    })
+      .then(newUser => {
+        logger.info('User created');
+        return newUser;
       })
-        .then(newUser => {
-          logger.info('User created');
-          return newUser;
-        })
-        .catch(e => {
-          throw errors.databaseError(e.message);
-        })
-    )
-    .catch(e => {
-      logger.error(e.message);
-      throw e;
-    });
+      .catch(e => {
+        logger.error(e.message);
+        throw errors.databaseError(e.message);
+      })
+  );
