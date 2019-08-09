@@ -1,14 +1,12 @@
 const errors = require('../errors'),
   { user: User } = require('../models'),
-  bcrypt = require('bcrypt');
+  encryptationHelper = require('../helper/encryptation');
 
 const logger = require('../logger');
 
-const saltRounds = 10;
-
 exports.createUser = user =>
-  bcrypt
-    .hash(user.password, saltRounds)
+  encryptationHelper
+    .encrypt(user.password)
     .then(hash =>
       User.createModel({
         firstName: user.firstName,
@@ -26,8 +24,4 @@ exports.createUser = user =>
     )
     .catch(e => {
       logger.error(e.message);
-      if (e.extensions) {
-        throw e;
-      }
-      throw errors.defaultError(e.message);
     });
