@@ -1,5 +1,5 @@
 const { mutate } = require('../server.spec'),
-  { createUser } = require('./graphql'),
+  { createUser, logIn } = require('./graphql'),
   userFactory = require('../factories/user');
 
 describe('users', () => {
@@ -14,9 +14,23 @@ describe('users', () => {
       await expect(email).toEqual(user.email);
       await expect(id).toBeDefined();
     });
+    it('should log in an user successfuly', async () => {
+      const user = await userFactory.attributes({ email: 'random@wolox.com.ar' });
+      const res = await mutate(await createUser(user));
+      await expect(res.errors).toBe(undefined);
+      const token = await mutate(await logIn({ email: user.email, password: user.password }));
+      await expect(token.data.logIn).toBeDefined();
+    });
     it('should return error', async () => {
       const res = await mutate(await createUser({ notFirstName: 'Pepe', lastName: 1 }));
       await expect(typeof res.errors).toBe('object');
+    });
+    it('should return an non authorized error', async () => {
+      const user = await userFactory.attributes({ email: 'random@wolox.com.ar' });
+      const res = await mutate(await createUser(user));
+      await expect(res.errors).toBe(undefined);
+      const token = await mutate(await logIn({ email: user.email, password: 'userpassword' }));
+      await expect(typeof token.errors).toBe('object');
     });
   });
 });

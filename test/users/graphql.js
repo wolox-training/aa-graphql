@@ -2,8 +2,8 @@ const { gql } = require('apollo-server');
 
 const createUser = userInput => ({
   mutation: gql`
-    mutation user($firstName: String!, $lastName: String!, $password: String!, $email: String!) {
-      user(firstName: $firstName, lastName: $lastName, password: $password, email: $email) {
+    mutation user($user: UserInput!) {
+      user(user: $user) {
         firstName
         lastName
         name
@@ -14,11 +14,24 @@ const createUser = userInput => ({
     }
   `,
   variables: {
-    firstName: userInput.firstName,
-    lastName: userInput.lastName,
-    password: userInput.password,
-    email: userInput.email
+    user: {
+      firstName: userInput.firstName,
+      lastName: userInput.lastName,
+      password: userInput.password,
+      email: userInput.email
+    }
   }
 });
 
-module.exports = { createUser };
+const logIn = logInInput => ({
+  mutation: gql`
+    mutation logIn($logIn: LoginInput!) {
+      logIn(logIn: $logIn)
+    }
+  `,
+  variables: {
+    logIn: logInInput
+  }
+});
+
+module.exports = { createUser, logIn };
