@@ -9,3 +9,8 @@ exports.encrypt = password =>
     logger.error(e.message);
     throw errors.defaultError(e);
   });
+
+exports.validate = (password, hash) =>
+  bcrypt.compare(password, hash).catch(e => {
+    throw errors.defaultError(e.message);
+  });
