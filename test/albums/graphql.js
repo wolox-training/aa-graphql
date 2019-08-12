@@ -31,4 +31,16 @@ const getAlbums = () => gql`
   }
 `;
 
-module.exports = { getAlbum, getAlbums };
+const buyAlbum = id => ({
+  mutation: gql`
+    mutation{
+      buyAlbum (albumId: ${id}){
+        title
+        photos {
+          title
+        }
+      }
+    }`
+});
+
+module.exports = { getAlbum, getAlbums, buyAlbum };
