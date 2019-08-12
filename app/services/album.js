@@ -1,6 +1,8 @@
 const axios = require('axios');
 const { url } = require('../../config').common.api;
 const errors = require('../errors');
+const { user: User } = require('../models');
+const { transaction: Transaction } = require('../models');
 
 exports.getAlbum = id => {
   const endpoint = `${url}albums/${id}`;
@@ -55,4 +57,27 @@ exports.getAllAlbums = (offset, limit, filter, orderBy) => {
       }
       return processedAlbums.slice(offset, limit);
     });
+};
+
+exports.buyAlbum = async (albumId, context) => {
+  const { user } = context;
+  if (!user) {
+    throw errors.unauthorized('User not authorized');
+  }
+  const userDB = await User.getByEmail(user.email).catch(e => {
+    throw errors.databaseError(e);
+  });
+  if (!userDB) {
+    throw errors.notFound('User not found');
+  }
+  const transaction = await Transaction.getOne({ albumId, userId: userDB.dataValues.id }).catch(e => {
+    throw errors.databaseError(e);
+  });
+  if (transaction) {
+    throw errors.badRequest('Album alredy bought');
+  }
+  await Transaction.createModel({ albumId, userId: userDB.dataValues.id }).catch(e => {
+    throw errors.databaseError(e);
+  });
+  return exports.getAlbum(albumId);
 };
