@@ -5,7 +5,6 @@ module.exports = gql`
     PUBLIC
     PRIVATE
   }
-
   directive @cacheControl(maxAge: Int, scope: CacheControlScope) on FIELD_DEFINITION | OBJECT | INTERFACE
   type Query
   type Mutation
