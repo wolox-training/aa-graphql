@@ -1,26 +1,23 @@
+const { parse: urlParse } = require('url');
+
 const axios = jest.genMockFromModule('axios');
 
-let mockAlbums = Object.create(null);
-let mockPhotos = Object.create(null);
+const mockResponse = Object.create(null);
 
 function setMockAlbums(albums) {
-  mockAlbums = albums;
+  mockResponse['/albums'] = albums;
+  albums.forEach(album => {
+    mockResponse[`/albums/${album.id}`] = album;
+  });
 }
+
 function setMockPhotos(photos) {
-  mockPhotos = photos;
+  mockResponse['/photos'] = photos;
 }
 
 function get(url) {
-  if (url.includes('albums/')) {
-    return Promise.resolve({ data: mockAlbums[0] });
-  }
-  if (url.includes('albums')) {
-    return Promise.resolve({ data: mockAlbums });
-  }
-  if (url.includes('photos')) {
-    return Promise.resolve({ data: mockPhotos });
-  }
-  return null;
+  const urlParsed = urlParse(url);
+  return Promise.resolve({ data: mockResponse[urlParsed.pathname] });
 }
 
 axios.setMockAlbums = setMockAlbums;
