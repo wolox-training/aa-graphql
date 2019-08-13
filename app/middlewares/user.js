@@ -1,20 +1,20 @@
-const validator = require('validator');
-const errors = require('../errors');
+const { isEmail, isAlphanumeric, isLength } = require('validator');
+const { badRequest } = require('../errors');
 
 exports.validateEmail = email => {
-  if (!validator.isEmail(email)) {
-    throw errors.badRequest('No valid email');
+  if (!isEmail(email)) {
+    throw badRequest('No valid email');
   }
   if (!email.includes('@wolox.com.ar')) {
-    throw errors.badRequest('Not wolox email');
+    throw badRequest('Not wolox email');
   }
 };
 
 exports.validatePassword = password => {
-  if (!validator.isAlphanumeric(password)) {
-    throw errors.badRequest('Not alphanumeric password');
+  if (!isAlphanumeric(password)) {
+    throw badRequest('Not alphanumeric password');
   }
-  if (!validator.isLength(password, { min: 8 })) {
-    throw errors.badRequest('Not long enough password');
+  if (!isLength(password, { min: 8 })) {
+    throw badRequest('Not long enough password');
   }
 };
