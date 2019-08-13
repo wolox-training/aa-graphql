@@ -1,8 +1,7 @@
-const { validateEmail, validatePassword } = require('../../middlewares/user.js');
+const { validateEmail } = require('../../middlewares/user.js');
 
 const user = (resolve, root, args) => {
   validateEmail(args.email);
-  validatePassword(args.password);
   return resolve(root, args);
 };
 
