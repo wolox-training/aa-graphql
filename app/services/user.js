@@ -1,12 +1,12 @@
 const { databaseError } = require('../errors'),
-  { user: User } = require('../models'),
+  { createModel: createUser } = require('../models').user,
   { encrypt } = require('../helper/encryptation');
 
 const logger = require('../logger');
 
 exports.createUser = user =>
   encrypt(user.password).then(hash =>
-    User.createModel({
+    createUser({
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
