@@ -1,12 +1,14 @@
-const errors = require('../errors'),
-  { user: User } = require('../models'),
-  encryptationHelper = require('../helper/encryptation');
+const { databaseError } = require('../errors'),
+  { createModel: createUser } = require('../models').user,
+  { encrypt } = require('../helper/encryptation'),
+  { validatePassword } = require('../helper/validator');
 
 const logger = require('../logger');
 
-exports.createUser = user =>
-  encryptationHelper.encrypt(user.password).then(hash =>
-    User.createModel({
+exports.createUser = user => {
+  validatePassword(user.password);
+  return encrypt(user.password).then(hash =>
+    createUser({
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
@@ -18,6 +20,7 @@ exports.createUser = user =>
       })
       .catch(e => {
         logger.error(e.message);
-        throw errors.databaseError(e.message);
+        throw databaseError(e.message);
       })
   );
+};

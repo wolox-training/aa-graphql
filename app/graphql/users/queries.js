@@ -1,10 +1,10 @@
 const { gql } = require('apollo-server'),
-  { user: User } = require('../../models');
+  { getAll: getAllUsers, getOne: getOneUser } = require('../../models').user;
 
 module.exports = {
   queries: {
-    user: (_, params) => User.getOne(params),
-    users: (_, params) => User.getAll(params)
+    user: (_, params) => getOneUser(params),
+    users: (_, params) => getAllUsers(params)
   },
   schema: gql`
     extend type Query {
