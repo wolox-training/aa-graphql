@@ -71,6 +71,7 @@
     "rollbar": "^2.3.9",
     "sequelize": "^4.44.0",
     "umzug": "^2.1.0",
+    "url": "^0.11.0",
     "validator": "^11.1.0"
   },
   "devDependencies": {
