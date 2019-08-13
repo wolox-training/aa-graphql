@@ -1,9 +1,9 @@
 const { gql } = require('apollo-server');
-const albumsService = require('../../services/album');
+const { getPhotosOfAlbum } = require('../../services/album');
 
 module.exports = {
   fieldResolvers: {
-    photos: obj => albumsService.getPhotosOfAlbum(obj.id)
+    photos: obj => getPhotosOfAlbum(obj.id)
   },
   schema: gql`
     extend type Query {
