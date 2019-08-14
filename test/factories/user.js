@@ -8,7 +8,7 @@ factory.define('user', User, {
   lastName: () => faker.name.lastName(),
   email: () => faker.internet.email(),
   username: () => faker.internet.email(),
-  password: () => faker.internet.password()
+  password: () => faker.random.alphaNumeric(15)
 });
 
 module.exports = {

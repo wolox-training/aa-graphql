@@ -1,4 +1,4 @@
-const { genSalt, hash } = require('bcryptjs');
+const { genSalt, hash, compare } = require('bcryptjs');
 const { defaultError } = require('../errors');
 const { error: logError } = require('../logger');
 
@@ -11,3 +11,8 @@ exports.encrypt = password =>
       throw defaultError(e);
     })
   );
+
+exports.validate = (password, hashedPass) =>
+  compare(password, hashedPass).catch(e => {
+    throw defaultError(e.message);
+  });

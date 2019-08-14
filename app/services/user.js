@@ -1,7 +1,8 @@
-const { databaseError } = require('../errors'),
-  { createModel: createUser } = require('../models').user,
-  { encrypt } = require('../helper/encryptation'),
-  { validatePassword } = require('../helper/validator');
+const { databaseError, badRequest, unauthorized } = require('../errors'),
+  { createModel: createUser, getByEmail: getUserByEmail } = require('../models').user,
+  { encrypt, validate } = require('../helper/encryptation'),
+  { validatePassword } = require('../helper/validator'),
+  { encrypt: generateToken } = require('../helper/token');
 
 const logger = require('../logger');
 
@@ -24,3 +25,23 @@ exports.createUser = user => {
       })
   );
 };
+
+exports.logIn = logIn =>
+  getUserByEmail(logIn.email)
+    .then(user => {
+      if (!user) {
+        throw badRequest('The email not exist');
+      }
+      return validate(logIn.password, user.dataValues.password).then(res => {
+        if (!res) {
+          throw unauthorized('Invalid password');
+        }
+        return generateToken({ email: logIn.email });
+      });
+    })
+    .catch(e => {
+      if (e.extensions) {
+        throw e;
+      }
+      throw databaseError(e.message);
+    });

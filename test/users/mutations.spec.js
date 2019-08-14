@@ -1,5 +1,5 @@
 const { mutate } = require('../server.spec'),
-  { createUser } = require('./graphql'),
+  { createUser, logIn } = require('./graphql'),
   userFactory = require('../factories/user');
 
 describe('users', () => {
@@ -7,7 +7,7 @@ describe('users', () => {
     it('should create an user successfuly', () => {
       userFactory.attributes({ email: 'ale@wolox.com.ar', password: '123456789' }).then(user => {
         mutate(createUser(user)).then(res => {
-          const { firstName, lastName, email, id } = res.data.user;
+          const { firstName, name, lastName, email, id } = res.data.user;
           expect(firstName).toEqual(user.firstName);
           expect(lastName).toEqual(user.lastName);
           expect(name).toEqual(`${user.firstName} ${user.lastName}`);
@@ -54,6 +54,27 @@ describe('users', () => {
         mutate(createUser(user)).then(res => {
           expect(res.errors[0].statusCode).toBe(400);
           expect(res.errors[0].message).toBe('Not long enough password. Minimun length is 8');
+        });
+      });
+    });
+    it('should log in an user successfuly', () => {
+      userFactory.attributes({ email: 'random@wolox.com.ar' }).then(user => {
+        mutate(createUser(user)).then(res => {
+          expect(res.errors).toBe(undefined);
+          mutate(logIn({ email: user.email, password: user.password })).then(token => {
+            expect(token.data.logIn).toBeDefined();
+          });
+        });
+      });
+    });
+    it('should return an non authorized error', () => {
+      userFactory.attributes({ email: 'random@wolox.com.ar' }).then(user => {
+        mutate(createUser(user)).then(res => {
+          expect(res.errors).toBe(undefined);
+          mutate(logIn({ email: user.email, password: 'userpassword' })).then(token => {
+            expect(typeof token.errors).toBe('object');
+            expect(token.errors[0].statusCode).toBe(401);
+          });
         });
       });
     });

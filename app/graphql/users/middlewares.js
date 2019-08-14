@@ -5,9 +5,15 @@ const user = (resolve, root, args) => {
   return resolve(root, args);
 };
 
+const logIn = (resolve, root, args) => {
+  validateEmail(args.user.email);
+  return resolve(root, args);
+};
+
 module.exports = {
   // Here you add all the middlewares for the mutations, queries or field resolvers if you have any
   mutations: {
-    user
+    user,
+    logIn
   }
 };
