@@ -1,34 +1,32 @@
-const axios = require('axios');
+const { get } = require('axios');
 const { url } = require('../../config').common.api;
-const errors = require('../errors');
 const { user: User } = require('../models');
 const { transaction: Transaction } = require('../models');
+const { badRequest, conectionError, unauthorized, databaseError } = require('../errors');
 
 exports.getAlbum = id => {
   const endpoint = `${url}albums/${id}`;
-  return axios
-    .get(endpoint)
+  return get(endpoint)
     .then(response => response.data)
     .catch(e => {
-      throw errors.conectionError(e.message);
+      throw conectionError(e.message);
     });
 };
 
 exports.getPhotosOfAlbum = albumId => {
   const query = `?albumId=${albumId}`;
   const endpoint = `${url}photos${query}`;
-  return axios
-    .get(endpoint)
+  return get(endpoint)
     .then(response => response.data)
     .catch(e => {
-      throw errors.conectionError(e.message);
+      throw conectionError(e.message);
     });
 };
 
 const sortFunction = (array, orderBy) =>
   array.sort((a, b) => {
     if (!a[orderBy] || !b[orderBy]) {
-      throw errors.badRequest('The orderBy parameter do not exist');
+      throw badRequest('The orderBy parameter do not exist');
     }
     if (a[orderBy] < b[orderBy]) {
       return -1;
@@ -41,11 +39,10 @@ const sortFunction = (array, orderBy) =>
 
 exports.getAllAlbums = (offset, limit, filter, orderBy) => {
   const endpoint = `${url}albums`;
-  return axios
-    .get(endpoint)
+  return get(endpoint)
     .then(response => response.data)
     .catch(e => {
-      throw errors.conectionError(e.message);
+      throw conectionError(e.message);
     })
     .then(albums => {
       const processedAlbums = albums.slice();
@@ -62,22 +59,22 @@ exports.getAllAlbums = (offset, limit, filter, orderBy) => {
 exports.buyAlbum = async (albumId, context) => {
   const { user } = context;
   if (!user) {
-    throw errors.unauthorized('User not authorized');
+    throw unauthorized('User not authorized');
   }
   const userDB = await User.getByEmail(user.email).catch(e => {
-    throw errors.databaseError(e);
+    throw databaseError(e);
   });
   if (!userDB) {
-    throw errors.notFound('User not found');
+    throw notFound('User not found');
   }
   const transaction = await Transaction.getOne({ albumId, userId: userDB.dataValues.id }).catch(e => {
-    throw errors.databaseError(e);
+    throw databaseError(e);
   });
   if (transaction) {
-    throw errors.badRequest('Album alredy bought');
+    throw badRequest('Album alredy bought');
   }
   await Transaction.createModel({ albumId, userId: userDB.dataValues.id }).catch(e => {
-    throw errors.databaseError(e);
+    throw databaseError(e);
   });
   return exports.getAlbum(albumId);
 };
