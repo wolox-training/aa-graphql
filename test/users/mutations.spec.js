@@ -7,7 +7,7 @@ describe('users', () => {
     it('should create an user successfuly', () => {
       userFactory.attributes({ email: 'ale@wolox.com.ar', password: '123456789' }).then(user => {
         mutate(createUser(user)).then(res => {
-          const { firstName, lastName, email, id } = res.data.user;
+          const { firstName, name, lastName, email, id } = res.data.user;
           expect(firstName).toEqual(user.firstName);
           expect(lastName).toEqual(user.lastName);
           expect(name).toEqual(`${user.firstName} ${user.lastName}`);
@@ -57,19 +57,26 @@ describe('users', () => {
         });
       });
     });
-    it('should log in an user successfuly', async () => {
-      const user = await userFactory.attributes({ email: 'random@wolox.com.ar' });
-      const res = await mutate(await createUser(user));
-      await expect(res.errors).toBe(undefined);
-      const token = await mutate(await logIn({ email: user.email, password: user.password }));
-      await expect(token.data.logIn).toBeDefined();
+    it('should log in an user successfuly', () => {
+      userFactory.attributes({ email: 'random@wolox.com.ar' }).then(user => {
+        mutate(createUser(user)).then(res => {
+          expect(res.errors).toBe(undefined);
+          mutate(logIn({ email: user.email, password: user.password })).then(token => {
+            expect(token.data.logIn).toBeDefined();
+          });
+        });
+      });
     });
-    it('should return an non authorized error', async () => {
-      const user = await userFactory.attributes({ email: 'random@wolox.com.ar' });
-      const res = await mutate(await createUser(user));
-      await expect(res.errors).toBe(undefined);
-      const token = await mutate(await logIn({ email: user.email, password: 'userpassword' }));
-      await expect(typeof token.errors).toBe('object');
+    it('should return an non authorized error', () => {
+      userFactory.attributes({ email: 'random@wolox.com.ar' }).then(user => {
+        mutate(createUser(user)).then(res => {
+          expect(res.errors).toBe(undefined);
+          mutate(logIn({ email: user.email, password: 'userpassword' })).then(token => {
+            expect(typeof token.errors).toBe('object');
+            expect(token.errors[0].statusCode).toBe(401);
+          });
+        });
+      });
     });
   });
 });
