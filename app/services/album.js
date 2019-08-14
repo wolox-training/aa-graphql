@@ -1,7 +1,7 @@
 const { get } = require('axios');
 const { url } = require('../../config').common.api;
-const { user: User } = require('../models');
-const { transaction: Transaction } = require('../models');
+const { getByEmail: getUserByEmail } = require('../models').user;
+const { getOne: getOneTransaction, createModel: createTransaction } = require('../models').transaction;
 const { badRequest, conectionError, unauthorized, notFound, databaseError } = require('../errors');
 
 exports.getAlbum = id => {
@@ -56,25 +56,32 @@ exports.getAllAlbums = (offset, limit, filter, orderBy) => {
     });
 };
 
-exports.buyAlbum = async (albumId, context) => {
+exports.buyAlbum = (albumId, context) => {
   const { user } = context;
   if (!user) {
     throw unauthorized('User not authorized');
   }
-  const userDB = await User.getByEmail(user.email).catch(e => {
-    throw databaseError(e);
-  });
-  if (!userDB) {
-    throw notFound('User not found');
-  }
-  const transaction = await Transaction.getOne({ albumId, userId: userDB.dataValues.id }).catch(e => {
-    throw databaseError(e);
-  });
-  if (transaction) {
-    throw badRequest('Album alredy bought');
-  }
-  await Transaction.createModel({ albumId, userId: userDB.dataValues.id }).catch(e => {
-    throw databaseError(e);
-  });
-  return exports.getAlbum(albumId);
+  return getUserByEmail(user.email)
+    .catch(e => {
+      throw databaseError(e);
+    })
+    .then(userDB => {
+      if (!userDB) {
+        throw notFound('User not found');
+      }
+      return getOneTransaction({ albumId, userId: userDB.dataValues.id })
+        .catch(e => {
+          throw databaseError(e);
+        })
+        .then(transaction => {
+          if (transaction) {
+            throw badRequest('Album alredy bought');
+          }
+          return createTransaction({ albumId, userId: userDB.dataValues.id })
+            .catch(e => {
+              throw databaseError(e);
+            })
+            .then(() => exports.getAlbum(albumId));
+        });
+    });
 };
