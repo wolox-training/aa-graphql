@@ -10,17 +10,15 @@ ApolloServer.prototype.resetContext = function resetContext() {
   this.context = undefined;
 };
 
-const apolloServer = new ApolloServer({ schema });
-
-const { query: _query, mutate } = createTestClient(
-  new ApolloServer({
-    schema,
-    formatError: err => ({
-      message: err.message,
-      statusCode: err.extensions.code
-    })
+const apolloServer = new ApolloServer({
+  schema,
+  formatError: err => ({
+    message: err.message,
+    statusCode: err.extensions.code
   })
-);
+});
+
+const { query: _query, mutate } = createTestClient(apolloServer);
 
 const query = params => _query({ query: params });
 

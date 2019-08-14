@@ -35,9 +35,14 @@ const buyAlbum = id => ({
   mutation: gql`
     mutation{
       buyAlbum (albumId: ${id}){
+        id
         title
         photos {
+          albumId
+          id
           title
+          url
+          thumbnailUrl
         }
       }
     }`
