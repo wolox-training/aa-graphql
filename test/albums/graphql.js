@@ -31,4 +31,35 @@ const getAlbums = () => gql`
   }
 `;
 
-module.exports = { getAlbum, getAlbums };
+const getAlbumsWithOffset = (offset, limit) => gql`
+  query {
+    albums(offset: ${offset},limit: ${limit}) {
+      id
+      title
+      photos {
+        albumId
+        id
+        title
+        url
+        thumbnailUrl
+      }
+    }
+  }
+`;
+
+const getAlbumsWithFilter = filter => gql`
+    query {
+        albums(filter: "${filter}") {
+          id,
+          title,
+          photos {
+            albumId
+            id
+            title
+            url
+            thumbnailUrl
+          }
+        }
+      }`;
+
+module.exports = { getAlbum, getAlbums, getAlbumsWithOffset, getAlbumsWithFilter };
