@@ -22,7 +22,7 @@ module.exports = gql`
     photos: [Photo!]!
   }
   type Photo {
-    albumID: ID!
+    albumId: ID!
     id: Int!
     title: String!
     url: String!

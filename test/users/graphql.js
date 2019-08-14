@@ -1,38 +1,25 @@
 const { gql } = require('apollo-server');
 
-const getUser = id => gql`
-    query {
-        user(id: ${id}) {
-          firstName,
-          lastName,
-          email
-        }
-      }`;
-
-const getUsers = () => gql`
-  query {
-    users {
-      firstName
-      lastName
-      email
-    }
-  }
-`;
-
 const createUser = userInput => ({
   mutation: gql`
-    mutation createUser($userInput: UserInput!) {
-      createUser(user: $userInput) {
+    mutation user($user: UserInput!) {
+      user(user: $user) {
         firstName
         lastName
         id
-        username
         password
         email
       }
     }
   `,
-  variables: { userInput }
+  variables: {
+    user: {
+      firstName: userInput.firstName,
+      lastName: userInput.lastName,
+      password: userInput.password,
+      email: userInput.email
+    }
+  }
 });
 
-module.exports = { getUser, getUsers, createUser };
+module.exports = { createUser };
