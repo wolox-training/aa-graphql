@@ -2,7 +2,7 @@ const { get } = require('axios');
 const { url } = require('../../config').common.api;
 const { user: User } = require('../models');
 const { transaction: Transaction } = require('../models');
-const { badRequest, conectionError, unauthorized, databaseError } = require('../errors');
+const { badRequest, conectionError, unauthorized, notFound, databaseError } = require('../errors');
 
 exports.getAlbum = id => {
   const endpoint = `${url}albums/${id}`;
