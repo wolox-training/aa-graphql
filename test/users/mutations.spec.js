@@ -10,6 +10,7 @@ describe('users', () => {
           const { firstName, lastName, email, id } = res.data.user;
           expect(firstName).toEqual(user.firstName);
           expect(lastName).toEqual(user.lastName);
+          expect(name).toEqual(`${user.firstName} ${user.lastName}`);
           expect(email).toEqual(user.email);
           expect(id).toBeDefined();
         });
