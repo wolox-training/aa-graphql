@@ -1,9 +1,9 @@
 const { gql } = require('apollo-server'),
-  usersService = require('../../services/user');
+  { createUser } = require('../../services/user');
 
 module.exports = {
   mutations: {
-    user: (_, { user }) => usersService.createUser(user)
+    user: (_, { user }) => createUser(user)
   },
   schema: gql`
     extend type Mutation {
