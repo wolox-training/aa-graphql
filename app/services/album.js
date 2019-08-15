@@ -1,7 +1,7 @@
 const { get } = require('axios');
 const { url } = require('../../config').common.api;
 const { getByEmail: getUserByEmail } = require('../models').user;
-const { getOne: getOneTransaction, createModel: createTransaction } = require('../models').transaction;
+const { getOne: getOneTransaction, createModel: createTransaction } = require('../models').purchase;
 const { badRequest, conectionError, unauthorized, notFound, databaseError } = require('../errors');
 
 exports.getAlbum = id => {
