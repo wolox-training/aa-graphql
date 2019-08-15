@@ -13,7 +13,7 @@ exports.encrypt = data => {
 
 exports.decode = token => {
   try {
-    return jwt.verify(token, secretKey);
+    return token && jwt.verify(token, secretKey);
   } catch (e) {
     throw unauthorized('User not authorized');
   }
