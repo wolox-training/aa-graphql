@@ -31,6 +31,23 @@ const getAlbums = () => gql`
   }
 `;
 
+const buyAlbum = id => ({
+  mutation: gql`
+    mutation{
+      buyAlbum (albumId: ${id}){
+        id
+        title
+        photos {
+          albumId
+          id
+          title
+          url
+          thumbnailUrl
+        }
+      }
+    }`
+});
+
 const getAlbumsWithOffset = (offset, limit) => gql`
   query {
     albums(offset: ${offset},limit: ${limit}) {
@@ -62,4 +79,4 @@ const getAlbumsWithFilter = filter => gql`
         }
       }`;
 
-module.exports = { getAlbum, getAlbums, getAlbumsWithOffset, getAlbumsWithFilter };
+module.exports = { getAlbum, getAlbums, getAlbumsWithOffset, getAlbumsWithFilter, buyAlbum };

@@ -1,6 +1,8 @@
 const { get } = require('axios');
 const { url } = require('../../config').common.api;
-const { badRequest, conectionError } = require('../errors');
+const { getByEmail: getUserByEmail } = require('../models').user;
+const { getOne: getOneTransaction, createModel: createTransaction } = require('../models').purchase;
+const { badRequest, conectionError, unauthorized, notFound, databaseError } = require('../errors');
 
 exports.getAlbum = id => {
   const endpoint = `${url}albums/${id}`;
@@ -51,5 +53,35 @@ exports.getAllAlbums = (offset, limit, filter, orderBy) => {
         sortFunction(processedAlbums, orderBy);
       }
       return processedAlbums.slice(offset, limit);
+    });
+};
+
+exports.buyAlbum = (albumId, context) => {
+  const { user } = context;
+  if (!user) {
+    throw unauthorized('User not authorized');
+  }
+  return getUserByEmail(user.email)
+    .catch(e => {
+      throw databaseError(e);
+    })
+    .then(userDB => {
+      if (!userDB) {
+        throw notFound('User not found');
+      }
+      return getOneTransaction({ albumId, userId: userDB.dataValues.id })
+        .catch(e => {
+          throw databaseError(e);
+        })
+        .then(transaction => {
+          if (transaction) {
+            throw badRequest('Album alredy bought');
+          }
+          return createTransaction({ albumId, userId: userDB.dataValues.id })
+            .catch(e => {
+              throw databaseError(e);
+            })
+            .then(() => exports.getAlbum(albumId));
+        });
     });
 };
