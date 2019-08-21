@@ -1,6 +1,6 @@
 const { conectionError, badRequest, unauthorized, databaseError, notFound } = require('../errors');
-const { getUserByEmail } = require('../models');
-const { getOneTransaction, createTransaction } = require('../models');
+const { getByEmail: getUserByEmail } = require('../models').user;
+const { getOne: getOnePurchase, createModel: createPurchase } = require('../models').purchase;
 const { albumLoader, allAlbumsLoader, photosLoader } = require('../helper/api');
 
 exports.getAlbum = id =>
@@ -61,7 +61,7 @@ exports.buyAlbum = (albumId, context) => {
       if (!userDB) {
         throw notFound('User not found');
       }
-      return getOneTransaction({ albumId, userId: userDB.dataValues.id })
+      return getOnePurchase({ albumId, userId: userDB.dataValues.id })
         .catch(e => {
           throw databaseError(e);
         })
@@ -69,7 +69,7 @@ exports.buyAlbum = (albumId, context) => {
           if (transaction) {
             throw badRequest('Album alredy bought');
           }
-          return createTransaction({ albumId, userId: userDB.dataValues.id })
+          return createPurchase({ albumId, userId: userDB.dataValues.id })
             .catch(e => {
               throw databaseError(e);
             })
