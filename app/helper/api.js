@@ -1,4 +1,4 @@
-const axios = require('axios');
+const { get } = require('axios');
 const redisClient = require('redis').createClient();
 const DataLoader = require('dataloader');
 
@@ -12,8 +12,12 @@ exports.albumLoader = () =>
       arrayId =>
         Promise.all(
           arrayId.map(id => {
+            console(arrayId);
             const endpoint = `${url}albums/${id}`;
-            return axios.get(endpoint);
+            return get(endpoint).then(response => {
+              console.log(response);
+              return response;
+            });
           })
         ),
       { cache: false }
@@ -31,7 +35,7 @@ exports.allAlbumsLoader = () =>
       Promise.all(
         arrayId.map(() => {
           const endpoint = `${url}albums`;
-          return axios.get(endpoint);
+          return get(endpoint);
         })
       )
     ),
@@ -49,7 +53,7 @@ exports.photosLoader = () =>
         arrayAlbumId.map(albumId => {
           const query = `?albumId=${albumId}`;
           const endpoint = `${url}photos${query}`;
-          return axios.get(endpoint);
+          return get(endpoint);
         })
       )
     ),
