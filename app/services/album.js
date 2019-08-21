@@ -1,78 +1,21 @@
-const axios = require('axios');
-const { url } = require('../../config').common.api;
 const errors = require('../errors');
 const { user: User } = require('../models');
 const { transaction: Transaction } = require('../models');
-const redisClient = require('redis').createClient();
-const DataLoader = require('dataloader');
-const RedisDataLoader = require('redis-dataloader')({ redis: redisClient });
-
-const albumLoader = new RedisDataLoader(
-  'album',
-  new DataLoader(
-    arrayId =>
-      Promise.resolve(
-        arrayId.map(id => {
-          const endpoint = `${url}albums/${id}`;
-          return axios.get(endpoint);
-        })
-      ),
-    { cache: false }
-  ),
-  {
-    // caching here is a local in memory cache. Caching is always done
-    // to redis.
-    cache: true,
-    serialize: info => JSON.stringify(info.data)
-  }
-);
-
-const allAlbumsLoader = new RedisDataLoader(
-  'allAlbums',
-  new DataLoader(arrayId =>
-    Promise.resolve(
-      arrayId.map(() => {
-        const endpoint = `${url}albums`;
-        return axios.get(endpoint);
-      })
-    )
-  ),
-  {
-    // caching here is a local in memory cache. Caching is always done
-    // to redis.
-    cache: true,
-    serialize: info => JSON.stringify(info.data)
-  }
-);
-
-const photosLoader = new RedisDataLoader(
-  'photos',
-  new DataLoader(arrayAlbumId =>
-    Promise.resolve(
-      arrayAlbumId.map(albumId => {
-        const query = `?albumId=${albumId}`;
-        const endpoint = `${url}photos${query}`;
-        return axios.get(endpoint);
-      })
-    )
-  ),
-  {
-    // caching here is a local in memory cache. Caching is always done
-    // to redis.
-    cache: true,
-    serialize: info => JSON.stringify(info.data)
-  }
-);
+const { albumLoader, allAlbumsLoader, photosLoader } = require('../helper/api');
 
 exports.getAlbum = id =>
-  albumLoader.load(id).catch(e => {
-    throw errors.conectionError(e.message);
-  });
+  albumLoader()
+    .load(id)
+    .catch(e => {
+      throw errors.conectionError(e.message);
+    });
 
 exports.getPhotosOfAlbum = albumId =>
-  photosLoader.load(albumId).catch(e => {
-    throw errors.conectionError(e.message);
-  });
+  photosLoader()
+    .load(albumId)
+    .catch(e => {
+      throw errors.conectionError(e.message);
+    });
 
 const sortFunction = (array, orderBy) =>
   array.sort((a, b) => {
@@ -89,7 +32,7 @@ const sortFunction = (array, orderBy) =>
   });
 
 exports.getAllAlbums = (offset, limit, filter, orderBy) =>
-  allAlbumsLoader
+  allAlbumsLoader()
     .load('NaN')
     .catch(e => {
       throw errors.conectionError(e.message);
