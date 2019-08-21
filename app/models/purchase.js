@@ -1,6 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
-  const Transaction = sequelize.define(
-    'transaction',
+  const Purchase = sequelize.define(
+    'purchase',
     {
       userId: {
         type: DataTypes.INTEGER,
@@ -17,11 +17,11 @@ module.exports = (sequelize, DataTypes) => {
     }
   );
 
-  Transaction.createModel = transaction => Transaction.create(transaction);
+  Purchase.createModel = purchase => Purchase.create(purchase);
 
-  Transaction.getOne = transaction => Transaction.findOne({ where: transaction });
+  Purchase.getOne = purchase => Purchase.findOne({ where: purchase });
 
-  Transaction.getAll = () => Transaction.findAll();
+  Purchase.getAll = () => Purchase.findAll();
 
-  return Transaction;
+  return Purchase;
 };

@@ -35,12 +35,48 @@ const buyAlbum = id => ({
   mutation: gql`
     mutation{
       buyAlbum (albumId: ${id}){
+        id
         title
         photos {
+          albumId
+          id
           title
+          url
+          thumbnailUrl
         }
       }
     }`
 });
 
-module.exports = { getAlbum, getAlbums, buyAlbum };
+const getAlbumsWithOffset = (offset, limit) => gql`
+  query {
+    albums(offset: ${offset},limit: ${limit}) {
+      id
+      title
+      photos {
+        albumId
+        id
+        title
+        url
+        thumbnailUrl
+      }
+    }
+  }
+`;
+
+const getAlbumsWithFilter = filter => gql`
+    query {
+        albums(filter: "${filter}") {
+          id,
+          title,
+          photos {
+            albumId
+            id
+            title
+            url
+            thumbnailUrl
+          }
+        }
+      }`;
+
+module.exports = { getAlbum, getAlbums, getAlbumsWithOffset, getAlbumsWithFilter, buyAlbum };

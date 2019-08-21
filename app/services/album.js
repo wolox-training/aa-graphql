@@ -1,26 +1,26 @@
-const errors = require('../errors');
-const { user: User } = require('../models');
-const { transaction: Transaction } = require('../models');
+const { conectionError, badRequest, unauthorized, databaseError, notFound } = require('../errors');
+const { getUserByEmail } = require('../models');
+const { getOneTransaction, createTransaction } = require('../models');
 const { albumLoader, allAlbumsLoader, photosLoader } = require('../helper/api');
 
 exports.getAlbum = id =>
   albumLoader()
     .load(id)
     .catch(e => {
-      throw errors.conectionError(e.message);
+      throw conectionError(e.message);
     });
 
 exports.getPhotosOfAlbum = albumId =>
   photosLoader()
     .load(albumId)
     .catch(e => {
-      throw errors.conectionError(e.message);
+      throw conectionError(e.message);
     });
 
 const sortFunction = (array, orderBy) =>
   array.sort((a, b) => {
     if (!a[orderBy] || !b[orderBy]) {
-      throw errors.badRequest('The orderBy parameter do not exist');
+      throw badRequest('The orderBy parameter do not exist');
     }
     if (a[orderBy] < b[orderBy]) {
       return -1;
@@ -35,7 +35,7 @@ exports.getAllAlbums = (offset, limit, filter, orderBy) =>
   allAlbumsLoader()
     .load('NaN')
     .catch(e => {
-      throw errors.conectionError(e.message);
+      throw conectionError(e.message);
     })
     .then(albums => {
       const processedAlbums = albums.slice();
@@ -48,25 +48,32 @@ exports.getAllAlbums = (offset, limit, filter, orderBy) =>
       return processedAlbums.slice(offset, limit);
     });
 
-exports.buyAlbum = async (albumId, context) => {
+exports.buyAlbum = (albumId, context) => {
   const { user } = context;
   if (!user) {
-    throw errors.unauthorized('User not authorized');
+    throw unauthorized('User not authorized');
   }
-  const userDB = await User.getByEmail(user.email).catch(e => {
-    throw errors.databaseError(e);
-  });
-  if (!userDB) {
-    throw errors.notFound('User not found');
-  }
-  const transaction = await Transaction.getOne({ albumId, userId: userDB.dataValues.id }).catch(e => {
-    throw errors.databaseError(e);
-  });
-  if (transaction) {
-    throw errors.badRequest('Album alredy bought');
-  }
-  await Transaction.createModel({ albumId, userId: userDB.dataValues.id }).catch(e => {
-    throw errors.databaseError(e);
-  });
-  return exports.getAlbum(albumId);
+  return getUserByEmail(user.email)
+    .catch(e => {
+      throw databaseError(e);
+    })
+    .then(userDB => {
+      if (!userDB) {
+        throw notFound('User not found');
+      }
+      return getOneTransaction({ albumId, userId: userDB.dataValues.id })
+        .catch(e => {
+          throw databaseError(e);
+        })
+        .then(transaction => {
+          if (transaction) {
+            throw badRequest('Album alredy bought');
+          }
+          return createTransaction({ albumId, userId: userDB.dataValues.id })
+            .catch(e => {
+              throw databaseError(e);
+            })
+            .then(() => exports.getAlbum(albumId));
+        });
+    });
 };
