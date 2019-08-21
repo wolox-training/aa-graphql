@@ -12,7 +12,6 @@ exports.albumLoader = () =>
       arrayId =>
         Promise.all(
           arrayId.map(id => {
-            console(arrayId);
             const endpoint = `${url}albums/${id}`;
             return get(endpoint).then(response => {
               console.log(response);
