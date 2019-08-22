@@ -8,7 +8,7 @@ const modules = importModules();
 const rootTypeDefinition = gql`
   type Query
   type Mutation
-  type Subscription
+  # type Subscription
 `;
 const typeDefs = [rootTypeDefinition, ...modules.typeDefs];
 const schema = makeExecutableSchema({

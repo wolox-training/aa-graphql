@@ -25,6 +25,4 @@ const customTypes = gql`
   }
 `;
 
-const inputTypes = gql``;
-
-exports.typeDefs = [rootTypes, customTypes, inputTypes];
+exports.typeDefs = [rootTypes, customTypes];
