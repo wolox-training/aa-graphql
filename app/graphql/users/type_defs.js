@@ -1,11 +1,11 @@
 const { gql } = require('apollo-server');
 
 const rootTypes = gql`
-  extend type query {
+  extend type Query {
     user(id: ID, firstName: String, email: String): User!
     users: [User]
   }
-  extend type mutation {
+  extend type Mutation {
     user(user: UserInput!): User!
     logIn(logIn: LoginInput!): String!
   }
