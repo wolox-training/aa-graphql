@@ -1,8 +1,11 @@
 const { get } = require('axios');
-const redisClient = require('redis').createClient();
+const RedisClient = require('redis');
 const DataLoader = require('dataloader');
 
-const RedisDataLoader = require('redis-dataloader')({ redis: redisClient });
+const { host, port, name } = require('../../config').common.redis;
+const RedisDataLoader = require('redis-dataloader')({
+  redis: RedisClient.createClient({ host, port, db: name })
+});
 const { url } = require('../../config').common.api;
 
 exports.albumLoader = () =>
@@ -13,17 +16,13 @@ exports.albumLoader = () =>
         Promise.all(
           arrayId.map(id => {
             const endpoint = `${url}albums/${id}`;
-            return get(endpoint).then(response => {
-              console.log(response);
-              return response;
-            });
+            return get(endpoint);
           })
         ),
       { cache: false }
     ),
     {
-      cache: true,
-      serialize: info => info.data
+      serialize: info => JSON.stringify(info.data)
     }
   );
 
@@ -40,7 +39,7 @@ exports.allAlbumsLoader = () =>
     ),
     {
       cache: true,
-      serialize: info => info.data
+      serialize: info => JSON.stringify(info.data)
     }
   );
 
@@ -58,6 +57,6 @@ exports.photosLoader = () =>
     ),
     {
       cache: true,
-      serialize: info => info.data
+      serialize: info => JSON.stringify(info.data)
     }
   );
