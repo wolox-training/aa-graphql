@@ -1,39 +1,18 @@
 const { makeExecutableSchema } = require('graphql-tools'),
   { applyMiddleware } = require('graphql-middleware'),
-  types = require('./types'),
-  inputs = require('./inputs'),
-  users = require('./users'),
-  healthCheck = require('./healthCheck'),
-  albums = require('./albums');
+  { gql } = require('apollo-server'),
+  { importModules } = require('./schema_import');
 
-const typeDefs = [types, inputs, ...users.schemas, ...healthCheck.schemas, ...albums.schemas];
+const modules = importModules();
 
+const rootTypeDefinition = gql`
+  type Query
+  type Mutation
+  # type Subscription
+`;
+const typeDefs = [rootTypeDefinition, ...modules.typeDefs];
 const schema = makeExecutableSchema({
   typeDefs,
-  resolvers: {
-    Query: {
-      ...users.queries,
-      ...healthCheck.queries,
-      ...albums.queries
-    },
-    Mutation: {
-      ...users.mutations,
-      ...albums.mutations
-    },
-    Subscription: {
-      ...users.subscriptions
-    },
-    Album: {
-      ...albums.fieldResolvers
-    },
-    User: {
-      ...users.fieldResolvers
-    }
-  }
+  resolvers: modules.resolvers
 });
-
-module.exports = applyMiddleware(schema, {
-  Mutation: {
-    ...users.middlewares.mutations
-  }
-});
+module.exports = applyMiddleware(schema, modules.middlewares);
