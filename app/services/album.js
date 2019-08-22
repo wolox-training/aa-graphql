@@ -1,27 +1,21 @@
-const { get } = require('axios');
-const { url } = require('../../config').common.api;
+const { conectionError, badRequest, unauthorized, databaseError, notFound } = require('../errors');
 const { getByEmail: getUserByEmail } = require('../models').user;
-const { getOne: getOneTransaction, createModel: createTransaction } = require('../models').purchase;
-const { badRequest, conectionError, unauthorized, notFound, databaseError } = require('../errors');
+const { getOne: getOnePurchase, createModel: createPurchase } = require('../models').purchase;
+const { albumLoader, allAlbumsLoader, photosLoader } = require('../helper/api');
 
-exports.getAlbum = id => {
-  const endpoint = `${url}albums/${id}`;
-  return get(endpoint)
-    .then(response => response.data)
+exports.getAlbum = id =>
+  albumLoader()
+    .load(id)
     .catch(e => {
       throw conectionError(e.message);
     });
-};
 
-exports.getPhotosOfAlbum = albumId => {
-  const query = `?albumId=${albumId}`;
-  const endpoint = `${url}photos${query}`;
-  return get(endpoint)
-    .then(response => response.data)
+exports.getPhotosOfAlbum = albumId =>
+  photosLoader()
+    .load(albumId)
     .catch(e => {
       throw conectionError(e.message);
     });
-};
 
 const sortFunction = (array, orderBy) =>
   array.sort((a, b) => {
@@ -37,10 +31,9 @@ const sortFunction = (array, orderBy) =>
     return 0;
   });
 
-exports.getAllAlbums = (offset, limit, filter, orderBy) => {
-  const endpoint = `${url}albums`;
-  return get(endpoint)
-    .then(response => response.data)
+exports.getAllAlbums = (offset, limit, filter, orderBy) =>
+  allAlbumsLoader()
+    .load('NaN')
     .catch(e => {
       throw conectionError(e.message);
     })
@@ -54,7 +47,6 @@ exports.getAllAlbums = (offset, limit, filter, orderBy) => {
       }
       return processedAlbums.slice(offset, limit);
     });
-};
 
 exports.buyAlbum = (albumId, context) => {
   const { user } = context;
@@ -69,7 +61,7 @@ exports.buyAlbum = (albumId, context) => {
       if (!userDB) {
         throw notFound('User not found');
       }
-      return getOneTransaction({ albumId, userId: userDB.dataValues.id })
+      return getOnePurchase({ albumId, userId: userDB.dataValues.id })
         .catch(e => {
           throw databaseError(e);
         })
@@ -77,7 +69,7 @@ exports.buyAlbum = (albumId, context) => {
           if (transaction) {
             throw badRequest('Album alredy bought');
           }
-          return createTransaction({ albumId, userId: userDB.dataValues.id })
+          return createPurchase({ albumId, userId: userDB.dataValues.id })
             .catch(e => {
               throw databaseError(e);
             })
