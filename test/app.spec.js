@@ -1,8 +1,11 @@
 'use strict';
 
+const { host, port, name } = require('../config').common.redis;
+
 const fs = require('fs'),
   models = require('../app/models'),
-  path = require('path');
+  path = require('path'),
+  redisClient = require('redis').createClient({ host, port, db: name });
 
 const tables = Object.values(models.sequelize.models);
 
@@ -11,8 +14,14 @@ const truncateTable = model =>
 
 const truncateDatabase = () => Promise.all(tables.map(truncateTable));
 
+const flushRedis = () =>
+  new Promise(resolve => {
+    redisClient.sendCommand('FLUSHALL');
+    resolve();
+  });
+
 beforeEach(done => {
-  truncateDatabase().then(() => done());
+  Promise.all([flushRedis(), truncateDatabase()]).then(() => done());
 });
 
 // including all test files

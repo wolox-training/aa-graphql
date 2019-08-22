@@ -17,7 +17,15 @@ function setMockPhotos(photos) {
 
 function get(url) {
   const urlParsed = urlParse(url);
-  return Promise.resolve(JSON.stringify({ data: mockResponse[urlParsed.pathname] }));
+  return new Promise(resolve => {
+    setTimeout(
+      () =>
+        resolve({
+          data: mockResponse[urlParsed.pathname]
+        }),
+      2000
+    );
+  });
 }
 
 axios.setMockAlbums = setMockAlbums;

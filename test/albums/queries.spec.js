@@ -15,7 +15,7 @@ describe('albums', () => {
         axios.setMockPhotos(fakePhotosToMock);
         return fakePhotosToMock;
       });
-      Promise.all([fakeAlbumsProm, fakePhotosProm]).then(([fakeAlbums, fakePhotos]) => {
+      return Promise.all([fakeAlbumsProm, fakePhotosProm]).then(([fakeAlbums, fakePhotos]) => {
         query(getAlbum(fakeAlbums[0].id)).then(res =>
           expect(res.data).toEqual({
             album: {
@@ -57,7 +57,7 @@ describe('albums', () => {
         axios.setMockPhotos(fakePhotosToMock);
         return fakePhotosToMock;
       });
-      Promise.all([fakeAlbumsProm, fakePhotosProm]).then(([fakeAlbums, fakePhotos]) => {
+      return Promise.all([fakeAlbumsProm, fakePhotosProm]).then(([fakeAlbums, fakePhotos]) => {
         query(getAlbums()).then(res => expect(res.data.albums).toHaveLength(5));
         query(getAlbumsWithOffset(0, 3)).then(res => expect(res.data.albums).toHaveLength(3));
         query(getAlbumsWithFilter(fakeAlbums[2].title)).then(res => {
