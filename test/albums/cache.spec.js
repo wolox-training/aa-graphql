@@ -17,13 +17,13 @@ describe('albums', () => {
         return fakePhotosToMock;
       });
       return Promise.all([fakeAlbumsProm, fakePhotosProm]).then(([fakeAlbums]) => {
-        let hrstart = moment();
+        const hrstartNoChached = moment();
         return query(getAlbum(fakeAlbums[0].id)).then(() => {
-          const hrendNoCached = moment().diff(hrstart);
-          hrstart = moment();
+          const hrendNoCached = moment().diff(hrstartNoChached);
+          const hrstartCached = moment();
           return query(getAlbum(fakeAlbums[0].id)).then(() => {
-            const hrendCached = moment().diff(hrstart);
-            return expect(hrendNoCached).toBeGreaterThan(hrendCached);
+            const hrendCached = moment().diff(hrstartCached);
+            return expect(hrendNoCached - hrendCached).toBeGreaterThan(100);
           });
         });
       });
