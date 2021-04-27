@@ -72,7 +72,7 @@
     "moment": "^2.24.0",
     "node-fetch": "^2.6.0",
     "pg": "^7.4.1",
-    "redis": "^2.8.0",
+    "redis": "^3.1.1",
     "redis-dataloader": "^0.5.0",
     "rollbar": "^2.3.9",
     "sequelize": "^4.44.0",
